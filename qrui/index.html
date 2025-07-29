@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QRUI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <style>
+    :root {
+      --primary: #FF9AA2;
+      --secondary: #B5EAD7;
+      --accent: #FFDAC1;
+      --dark: #6B6054;
+      --light: #F8F8F8;
+      --border: 4px solid var(--dark);
+      --shadow: 6px 6px 0px rgba(107, 96, 84, 0.3);
+      --radius: 12px;
+      --gap: 2rem;
+      --font-base: 1rem;
+      --font-lg: 2rem;
+      --font-sm: 0.875rem;
+      --font-xs: 0.75rem;
+    }
+
+    .dark-mode {
+      --primary: #FF7B8A;
+      --secondary: #333333;
+      --accent: #FFC8A2;
+      --dark: #D0D0D0;
+      --light: #1E1E1E;
+      --border: 4px solid var(--dark);
+      --shadow: 6px 6px 0px rgba(208, 208, 208, 0.3);
+    }
+
+    .blue-theme {
+      --primary: #6AB4FF;
+      --secondary: #A3DFFA;
+      --accent: #D6EFFF;
+      --dark: #4A6B8A;
+      --light: #F0F7FF;
+      --border: 4px solid var(--dark);
+    }
+
+    .green-theme {
+      --primary: #7EDDB5;
+      --secondary: #B3E8D3;
+      --accent: #D9F2E6;
+      --dark: #5A7A6A;
+      --light: #F2FFF9;
+      --border: 4px solid var(--dark);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: var(--light);
+      color: var(--dark);
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      min-height: 100vh;
+      line-height: 1.5;
+      font-size: var(--font-base);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      transition: opacity 0.3s ease;
+    }
+
+    header.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    h1 {
+      font-size: var(--font-lg);
+      font-weight: 700;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .login-btn, .logout-btn, .theme-btn, .back-btn {
+      padding: 0.5rem 1rem;
+      border: var(--border);
+      border-radius: var(--radius);
+      background-color: var(--primary);
+      font-size: var(--font-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-btn {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .login-btn:hover, .logout-btn:hover, .theme-btn:hover, .back-btn:hover {
+      transform: translate(2px, 2px);
+    }
+
+    .login-btn i, .logout-btn i, .theme-btn i, .back-btn i {
+      color: var(--dark);
+    }
+
+    .login-btn span, .back-btn span {
+      color: var(--dark);
+    }
+
+    .view-qr-btn {
+      padding: 0.5rem 1rem;
+      border: var(--border);
+      border-radius: var(--radius);
+      background-color: var(--secondary);
+      font-size: var(--font-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .view-qr-btn:hover {
+      transform: translate(2px, 2px);
+    }
+
+    .theme-dropdown {
+      position: relative;
+    }
+
+    .theme-dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: white;
+      min-width: 120px;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      z-index: 10;
+      margin-top: 0.25rem;
+    }
+
+    .dark-mode .theme-dropdown-content {
+      background-color: #2A2A2A;
+    }
+
+    .theme-dropdown-content a {
+      display: block;
+      padding: 0.75rem;
+      color: var(--dark);
+      text-decoration: none;
+      font-size: var(--font-sm);
+      transition: all 0.2s ease;
+    }
+
+    .theme-dropdown-content a:hover {
+      background-color: var(--secondary);
+    }
+
+    .theme-dropdown:hover .theme-dropdown-content {
+      display: block;
+    }
+
+    .main-content {
+      display: block;
+      transition: opacity 0.3s ease;
+      flex: 1;
+    }
+
+    .main-content.hidden {
+      display: none;
+      opacity: 0;
+    }
+
+    .login-section, .create-section {
+      display: none;
+      max-width: 1000px;
+      width: 100%;
+      margin: 0 auto;
+      text-align: center;
+      transition: opacity 0.3s ease;
+      position: relative;
+      padding-top: 3rem;
+    }
+
+    .login-section.show, .create-section.show {
+      display: block;
+      opacity: 1;
+    }
+
+    .login-section h2, .create-section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .login-section .input-group, .create-section .input-group {
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .login-section .button-row, .create-section .button-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .create-account {
+      display: block;
+      margin-top: 1rem;
+      font-size: var(--font-sm);
+      color: var(--dark);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .back-btn-section {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--gap);
+    }
+
+    .dark-mode .container {
+      background-color: transparent;
+    }
+
+    .left-column, .right-column {
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .right-column {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: transparent;
+      max-width: 260px;
+      align-self: center;
+      margin: 0 auto;
+    }
+
+    .input-group, .color-inputs, .transparent-option, .icon-input {
+      margin-bottom: var(--gap);
+    }
+
+    .input-group label, .transparent-option label {
+      display: block;
+      font-size: var(--font-sm);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .input-group input[type="text"], .input-group input[type="password"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: var(--border);
+      border-radius: var(--radius);
+      font-size: var(--font-base);
+      background-color: white;
+      box-shadow: var(--shadow);
+      transition: all 0.2s ease;
+    }
+
+    .dark-mode .input-group input[type="text"], .dark-mode .input-group input[type="password"] {
+      background-color: #333333;
+      color: var(--dark);
+    }
+
+    .input-group input[type="text"]:focus, .input-group input[type="password"]:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(255, 154, 162, 0.3);
+      transform: translate(2px, 2px);
+    }
+
+    .color-inputs {
+      padding: 0.75rem;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      background-color: var(--secondary);
+    }
+
+    .dark-mode .color-inputs {
+      background-color: #444444;
+    }
+
+    .color-inputs .color-picker {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .color-inputs .color-picker label {
+      font-size: var(--font-sm);
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .color-inputs .color-picker input[type="color"] {
+      width: 40px;
+      height: 40px;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .color-inputs .color-picker input[type="color"]:hover {
+      transform: scale(1.05);
+    }
+
+    .transparent-option {
+      padding: 0.75rem;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      background-color: white;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .dark-mode .transparent-option {
+      background-color: #333333;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 28px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--accent);
+      transition: all 0.3s ease;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .dark-mode .slider {
+      background-color: #555555;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 2px;
+      bottom: 4px;
+      background-color: white;
+      transition: all 0.3s ease;
+      border: var(--border);
+      border-radius: 8px;
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+
+    .icon-input .file-input-container,
+    .icon-input .file-input-filename {
+      margin-bottom: 0.75rem;
+    }
+
+    .file-input-container {
+      position: relative;
+    }
+
+    .file-input-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      background-color: var(--secondary);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      text-align: center;
+      font-weight: 600;
+      font-size: var(--font-sm);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .dark-mode .file-input-label {
+      background-color: #444444;
+    }
+
+    .file-input-label:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px rgba(107, 96, 84, 0.4);
+    }
+
+    .file-input-container input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .file-input-filename {
+      font-size: var(--font-xs);
+      text-align: center;
+      color: var(--dark);
+    }
+
+    .button-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: nowrap;
+    }
+
+    .btn {
+      padding: 0.75rem;
+      border: var(--border);
+      border-radius: var(--radius);
+      font-size: var(--font-sm);
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: all 0.2s ease;
+      text-align: center;
+      flex: 1;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      position: relative;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: var(--dark);
+    }
+
+    .btn-danger {
+      background-color: var(--accent);
+      color: var(--dark);
+    }
+
+    .btn-secondary {
+      background-color: var(--secondary);
+      color: var(--dark);
+    }
+
+    .btn-saved {
+      background-color: var(--accent);
+      color: var(--dark);
+      cursor: default;
+    }
+
+    .btn:hover:not(.btn-saved) {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px rgba(107, 96, 84, 0.4);
+    }
+
+    .btn.loading::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border: 4px solid var(--dark);
+      border-top: 4px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .dropdown {
+      flex: 1;
+      position: relative;
+    }
+
+    .dropdown button {
+      background-color: var(--secondary);
+      color: var(--dark);
+      border: var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem;
+      font-size: var(--font-sm);
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: center;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .dropdown button:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px rgba(107, 96, 84, 0.4);
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      width: 100%;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      z-index: 10;
+      margin-top: 0.25rem;
+    }
+
+    .dark-mode .dropdown-content {
+      background-color: #2A2A2A;
+    }
+
+    .dropdown-content a {
+      display: block;
+      padding: 0.75rem;
+      color: var(--dark);
+      text-decoration: none;
+      font-size: var(--font-sm);
+      transition: all 0.2s ease;
+      border-bottom: 2px dashed var(--dark);
+    }
+
+    .dropdown-content a:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-content a:hover {
+      background-color: var(--secondary);
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    #qr-code {
+      width: 260px;
+      height: 260px;
+      aspect-ratio: 1/1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      background-color: transparent;
+    }
+
+    #qrcode, #qrcode-modal {
+      width: 100%;
+      height: 100%;
+      max-width: 260px;
+      max-height: 260px;
+      background-color: transparent;
+      margin: 0 auto;
+    }
+
+    #qrcode img, #qrcode-modal img {
+      width: 230px;
+      height: 230px;
+    }
+
+    .dark-mode #qrcode, .dark-mode #qrcode-modal {
+      background-color: transparent;
+    }
+
+    #qrcode canvas, #qrcode-modal canvas {
+      width: 100% !important;
+      height: 100% !important;
+      max-width: 260px !important;
+      max-height: 260px !important;
+      display: block;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 1rem;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      max-width: 340px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .dark-mode .modal-content {
+      background-color: #2A2A2A;
+    }
+
+    .modal .button-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+      flex-wrap: nowrap;
+    }
+
+    .modal .input-group {
+      margin-bottom: 1rem;
+    }
+
+    .close-modal-btn, .download-modal-btn, .save-qr-btn {
+      flex: 1;
+      min-height: 48px;
+    }
+
+    .qr-overlay-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 39px;
+      height: 39px;
+      border-radius: var(--radius);
+      object-fit: cover;
+      pointer-events: none;
+      border: var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem 0;
+      font-size: var(--font-xs);
+      color: var(--dark);
+      border-top: var(--border);
+      margin-top: 2rem;
+    }
+
+    footer.hidden {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      :root {
+        --gap: 1.5rem;
+      }
+
+      body {
+        padding: 1.5rem;
+      }
+
+      header {
+        flex-direction: row;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .header-buttons {
+        flex-direction: row;
+        gap: 0.5rem;
+      }
+
+      .logout-btn, .theme-btn, .back-btn {
+        padding: 0.5rem;
+        font-size: var(--font-xs);
+      }
+
+      .login-btn, .view-qr-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: var(--font-xs);
+      }
+
+      .logout-btn span, .theme-btn span, .back-btn span {
+        display: none;
+      }
+
+      .login-btn span, .view-qr-btn span {
+        display: inline;
+      }
+
+      .container {
+        flex-direction: column;
+        gap: var(--gap);
+      }
+
+      .left-column, .right-column {
+        min-width: 100%;
+      }
+
+      .right-column {
+        max-width: 230px;
+        margin: 0 auto;
+      }
+
+      #qr-code, #qrcode, #qrcode-modal {
+        width: 230px;
+        height: 230px;
+        max-width: 230px;
+        max-height: 230px;
+      }
+
+      #qrcode img, #qrcode-modal img {
+        width: 230px;
+        height: 230px;
+      }
+
+      #qrcode canvas, #qrcode-modal canvas {
+        width: 230px !important;
+        height: 230px !important;
+        max-width: 230px !important;
+        max-height: 230px !important;
+      }
+
+      .qr-overlay-icon {
+        width: 33px;
+        height: 33px;
+      }
+
+      .button-group {
+        flex-direction: row;
+      }
+
+      .color-inputs .color-picker {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .modal-content {
+        padding: 0.75rem;
+        max-width: 300px;
+      }
+
+      .login-section, .create-section {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .btn, .dropdown button {
+        padding: 0.6rem;
+        font-size: var(--font-xs);
+      }
+
+      .switch {
+        width: 40px;
+        height: 24px;
+      }
+
+      .slider:before {
+        height: 16px;
+ poemas: 16px;
+        left: 2px;
+        bottom: 4px;
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(18px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header id="header">
+    <h1>QRUI</h1>
+    <div class="header-buttons">
+      <a id="view-qr-btn" class="view-qr-btn" href="view.html" style="display: none;"><i class="fas fa-qrcode"></i><span>View QRUI</span></a>
+      <button id="logout-btn" class="logout-btn" style="display: none;"><i class="fas fa-sign-out-alt"></i><span>Log Out</span></button>
+      <button id="login-btn" class="login-btn"><i class="fas fa-sign-in-alt"></i><span>Park It Here</span></button>
+      <div class="theme-dropdown">
+        <button id="theme-btn" class="theme-btn"><i class="fas fa-palette"></i><span>Theme</span></button>
+        <div class="theme-dropdown-content">
+          <a href="#" data-theme="default">Default</a>
+          <a href="#" data-theme="dark-mode">Dark Mode</a>
+          <a href="#" data-theme="blue-theme">Blue</a>
+          <a href="#" data-theme="green-theme">Green</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div id="main-content" class="main-content">
+    <div class="container">
+      <div class="left-column">
+        <div class="input-group">
+          <label for="url"><i class="fas fa-link"></i> Enter Link:</label>
+          <input type="text" id="url" placeholder="Enter your link here">
+        </div>
+
+        <div class="color-inputs">
+          <div class="color-picker">
+            <label for="foreground-color"><i class="fas fa-palette"></i> QR Code Color:</label>
+            <input type="color" id="foreground-color" value="#000000">
+          </div>
+          <div class="color-picker">
+            <label for="background-color"><i class="fas fa-fill-drip"></i> Background Color:</label>
+            <input type="color" id="background-color" value="#ffffff">
+          </div>
+        </div>
+
+        <div class="transparent-option">
+          <label class="switch">
+            <input type="checkbox" id="transparent-bg">
+            <span class="slider"></span>
+          </label>
+          <label for="transparent-bg"><i class="fas fa-eye-slash"></i> Transparent Background</label>
+        </div>
+
+        <div class="icon-input">
+          <div class="file-input-container">
+            <label class="file-input-label" for="icon"><i class="fas fa-image"></i> Choose Icon (Optional)</label>
+            <input type="file" id="icon" accept="image/*">
+            <div id="file-name" class="file-input-filename">No file chosen</div>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <div class="button-group">
+            <button id="generate-btn" class="btn btn-primary"><i class="fas fa-qrcode"></i> Generate</button>
+            <button id="clear-btn" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Clear</button>
+          </div>
+          <div id="download-section" class="dropdown" style="display: none;">
+            <button class="btn btn-secondary"><i class="fas fa-download"></i> Download Image</button>
+            <div class="dropdown-content">
+              <a href="#" id="download-png"><i class="fas fa-file-image"></i> Download PNG</a>
+              <a href="#" id="download-jpg"><i class="fas fa-file-image"></i> Download JPG</a>
+            </div>
+          </div>
+          <button id="save-btn" class="btn btn-secondary" style="display: none;"><i class="fas fa-save"></i> Save QR</button>
+        </div>
+      </div>
+
+      <div class="right-column">
+        <div id="qr-code">
+          <div id="qrcode"></div>
+          <img id="qr-icon" class="qr-overlay-icon" src="" alt="QR Icon" style="display: none;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="login-section" class="login-section">
+    <div class="back-btn-section">
+      <button id="back-btn-login" class="back-btn"><i class="fas fa-arrow-left"></i><span>Back</span></button>
+    </div>
+    <h2>Log In</h2>
+    <div class="input-group">
+      <label for="username"><i class="fas fa-user"></i> Username:</label>
+      <input type="text" id="username" placeholder="Enter your username">
+    </div>
+    <div class="input-group" id="password-group" style="display: none;">
+      <label for="password"><i class="fas fa-lock"></i> Password:</label>
+      <input type="password" id="password" placeholder="Enter your password">
+    </div>
+    <div class="button-row">
+      <button id="login-submit-btn" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+    </div>
+    <span id="create-account" class="create-account">Don't have an account? Sign up here</span>
+  </div>
+
+  <div id="create-section" class="create-section">
+    <div class="back-btn-section">
+      <button id="back-btn-create" class="back-btn"><i class="fas fa-arrow-left"></i><span>Back</span></button>
+    </div>
+    <h2>Create Account</h2>
+    <div class="input-group">
+      <label for="new-username"><i class="fas fa-user"></i> Username:</label>
+      <input type="text" id="new-username" placeholder="Choose a username">
+    </div>
+    <div class="input-group">
+      <label for="new-password"><i class="fas fa-lock"></i> Password (Optional):</label>
+      <input type="password" id="new-password" placeholder="Set a password (optional)">
+    </div>
+    <div class="button-row">
+      <button id="create-submit-btn" class="btn btn-primary"><i class="fas fa-user-plus"></i> Create</button>
+    </div>
+  </div>
+
+  <div id="qr-modal" class="modal">
+    <div class="modal-content">
+      <div id="qrcode-modal"></div>
+      <img id="qr-icon-modal" class="qr-overlay-icon" src="" alt="QR Icon" style="display: none;">
+      <div class="button-row">
+        <button class="close-modal-btn btn btn-danger"><i class="fas fa-times"></i> Close</button>
+        <button class="download-modal-btn btn btn-secondary" id="download-modal-png"><i class="fas fa-download"></i> Download</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="save-qr-modal" class="modal">
+    <div class="modal-content">
+      <h2>Save QR Code</h2>
+      <div class="input-group">
+        <label for="qr-name"><i class="fas fa-tag"></i> QR Code Name:</label>
+        <input type="text" id="qr-name" placeholder="Enter name for QR code">
+      </div>
+      <div class="button-row">
+        <button class="close-modal-btn btn btn-danger"><i class="fas fa-times"></i> Cancel</button>
+        <button id="save-qr-btn" class="save-qr-btn btn btn-primary"><i class="fas fa-save"></i> Save</button>
+      </div>
+    </div>
+  </div>
+
+  <footer id="footer">Create by AI</footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDf2FEU43V59XUHbg7ONghUMHY570Df7yU",
+      authDomain: "qrui-f59b1.firebaseapp.com",
+      projectId: "qrui-f59b1",
+      storageBucket: "qrui-f59b1.firebasestorage.app",
+      messagingSenderId: "1055223980386",
+      appId: "1:1055223980386:web:0db705a70e41c78965cc3b",
+      measurementId: "G-WL53ZP5LLG"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let qrCode = null;
+    let qrCodeModal = null;
+    let currentQRData = null;
+    let isSaved = false;
+
+    const generateBtn = document.getElementById('generate-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const saveBtn = document.getElementById('save-btn');
+    const saveQrBtn = document.getElementById('save-qr-btn');
+    const qrNameInput = document.getElementById('qr-name');
+    const downloadSection = document.getElementById('download-section');
+    const downloadPng = document.getElementById('download-png');
+    const downloadJpg = document.getElementById('download-jpg');
+    const downloadModalPng = document.getElementById('download-modal-png');
+    const loginBtn = document.getElementById('login-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const viewQrBtn = document.getElementById('view-qr-btn');
+    const backBtnLogin = document.getElementById('back-btn-login');
+    const backBtnCreate = document.getElementById('back-btn-create');
+    const mainContent = document.getElementById('main-content');
+    const loginSection = document.getElementById('login-section');
+    const createSection = document.getElementById('create-section');
+    const footer = document.getElementById('footer');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const passwordGroup = document.getElementById('password-group');
+    const loginSubmitBtn = document.getElementById('login-submit-btn');
+    const createAccountLink = document.getElementById('create-account');
+    const createSubmitBtn = document.getElementById('create-submit-btn');
+    const newUsernameInput = document.getElementById('new-username');
+    const newPasswordInput = document.getElementById('new-password');
+    const qrModal = document.getElementById('qr-modal');
+    const saveQrModal = document.getElementById('save-qr-modal');
+    const closeModalButtons = document.querySelectorAll('.modal .close-modal-btn');
+    const transparentCheckbox = document.getElementById('transparent-bg');
+    const fileInput = document.getElementById('icon');
+    const fileNameDisplay = document.getElementById('file-name');
+    const urlInput = document.getElementById('url');
+    const fgInput = document.getElementById('foreground-color');
+    const bgInput = document.getElementById('background-color');
+    const qrIcon = document.getElementById('qr-icon');
+    const qrIconModal = document.getElementById('qr-icon-modal');
+    const themeDropdown = document.querySelector('.theme-dropdown');
+    const themeOptions = document.querySelectorAll('.theme-dropdown-content a');
+    const header = document.getElementById('header');
+
+    function toggleGenerateButton(disable) {
+      generateBtn.disabled = disable;
+      generateBtn.style.opacity = disable ? '0.6' : '1';
+    }
+
+    function toggleHeader(show) {
+      header.classList.toggle('hidden', !show);
+    }
+
+    function toggleFooter(show) {
+      footer.classList.toggle('hidden', !show);
+    }
+
+    function updateUIForLogin(username) {
+      if (username) {
+        loginBtn.style.display = 'none';
+        logoutBtn.style.display = 'flex';
+        viewQrBtn.style.display = 'flex';
+        mainContent.classList.remove('hidden');
+        loginSection.classList.remove('show');
+        createSection.classList.remove('show');
+        toggleHeader(true);
+        toggleFooter(true);
+        if (currentQRData) {
+          saveBtn.style.display = 'block';
+        }
+      } else {
+        loginBtn.style.display = 'flex';
+        logoutBtn.style.display = 'none';
+        viewQrBtn.style.display = 'none';
+        saveBtn.style.display = 'none';
+      }
+    }
+
+    async function checkUserPassword(username) {
+      const q = query(collection(db, 'users'), where('username', '==', username));
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const userData = querySnapshot.docs[0].data();
+        return userData.password;
+      }
+      return undefined;
+    }
+
+    function setTheme(theme) {
+      document.body.className = theme === 'default' ? '' : theme;
+      localStorage.setItem('theme', theme);
+    }
+
+    function generateQRCode(data, showModal = true) {
+      const { url, foregroundColor, backgroundColor, isTransparent, iconDataURL } = data;
+
+      if (!url) {
+        alert('Please enter a valid URL');
+        return;
+      }
+
+      if (!isTransparent && foregroundColor === backgroundColor) {
+        alert('Foreground color and Background color cannot be the same.');
+        return;
+      }
+
+      if (qrCode) {
+        qrCode.clear();
+        qrCode = null;
+      }
+      if (qrCodeModal) {
+        qrCodeModal.clear();
+        qrCodeModal = null;
+      }
+
+      document.getElementById('qrcode').innerHTML = '';
+      document.getElementById('qrcode-modal').innerHTML = '';
+
+      const bg = isTransparent ? 'rgba(0,0,0,0)' : (backgroundColor || '#ffffff');
+
+      qrCode = new QRCode(document.getElementById('qrcode'), {
+        text: url,
+        width: 260,
+        height: 260,
+        colorDark: foregroundColor || '#000000',
+        colorLight: bg,
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      qrCodeModal = new QRCode(document.getElementById('qrcode-modal'), {
+        text: url,
+        width: 230,
+        height: 230,
+        colorDark: foregroundColor || '#000000',
+        colorLight: bg,
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      currentQRData = { ...data, timestamp: new Date().toISOString() };
+      downloadSection.style.display = 'block';
+      toggleGenerateButton(true);
+      isSaved = false;
+      saveBtn.innerHTML = '<i class="fas fa-save"></i> Save QR';
+      saveBtn.classList.remove('btn-saved');
+      saveBtn.classList.add('btn-secondary');
+
+      if (localStorage.getItem('username')) {
+        saveBtn.style.display = 'block';
+      }
+
+      if (showModal && window.innerWidth <= 768) {
+        qrModal.classList.add('show');
+      }
+
+      if (iconDataURL) {
+        qrIcon.src = iconDataURL;
+        qrIcon.style.display = 'block';
+        qrIconModal.src = iconDataURL;
+        qrIconModal.style.display = 'block';
+      } else {
+        qrIcon.style.display = 'none';
+        qrIconModal.style.display = 'none';
+      }
+    }
+
+    async function saveQRCode(qrName) {
+      const username = localStorage.getItem('username');
+      if (!username || !currentQRData) {
+        alert('Please log in and generate a QR code first.');
+        return;
+      }
+
+      if (!qrName.trim()) {
+        alert('Please enter a name for the QR code.');
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, 'qr_codes'), {
+          username,
+          name: qrName,
+          url: currentQRData.url,
+          foregroundColor: currentQRData.foregroundColor,
+          backgroundColor: currentQRData.backgroundColor,
+          isTransparent: currentQRData.isTransparent,
+          iconDataURL: currentQRData.iconDataURL || null,
+          timestamp: currentQRData.timestamp
+        });
+        saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved';
+        saveBtn.classList.remove('btn-secondary');
+        saveBtn.classList.add('btn-saved');
+        isSaved = true;
+        alert('QR Code saved successfully!');
+      } catch (error) {
+        console.error('Error saving QR code:', error);
+        alert('Failed to save QR code.');
+      }
+    }
+
+    function downloadQR(format, isModal = false) {
+      try {
+        const containerId = isModal ? 'qrcode-modal' : 'qrcode';
+        const container = document.getElementById(containerId);
+        const canvas = container.querySelector('canvas');
+
+        if (!canvas) {
+          alert('QR Code belum dihasilkan.');
+          return;
+        }
+
+        const icon = isModal ? qrIconModal : qrIcon;
+        const combinedCanvas = document.createElement('canvas');
+        const ctx = combinedCanvas.getContext('2d');
+        const qrWidth = canvas.width;
+        const qrHeight = canvas.height;
+        combinedCanvas.width = qrWidth;
+        combinedCanvas.height = qrHeight;
+
+        ctx.drawImage(canvas, 0, 0, qrWidth, qrHeight);
+
+        if (icon && icon.src && icon.style.display !== 'none') {
+          const iconImg = new Image();
+          iconImg.src = icon.src;
+          iconImg.onload = function() {
+            const desiredIconSize = qrWidth * 0.15;
+            const iconSize = Math.min(iconImg.naturalWidth, iconImg.naturalHeight, desiredIconSize);
+            const xPos = (qrWidth - iconSize) / 2;
+            const yPos = (qrHeight - iconSize) / 2;
+            ctx.drawImage(iconImg, xPos, yPos, iconSize, iconSize);
+            doDownload(combinedCanvas, format);
+          };
+          iconImg.onerror = function() {
+            console.error('Failed to load icon image.');
+            doDownload(combinedCanvas, format);
+          };
+          if (iconImg.complete) {
+            iconImg.onload();
+          }
+        } else {
+          doDownload(combinedCanvas, format);
+        }
+      } catch (error) {
+        console.error('Download Error:', error);
+        alert('Terjadi kesalahan saat mengunduh QR Code.');
+      }
+    }
+
+    function doDownload(canvas, format) {
+      const mimeType = format === 'jpg' ? 'image/jpeg' : `image/${format}`;
+      const dataURL = canvas.toDataURL(mimeType);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = dataURL;
+      downloadLink.download = `qr-code.${format}`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    }
+
+    generateBtn.addEventListener('click', function() {
+      const url = urlInput.value.trim();
+      const foregroundColor = fgInput.value;
+      const backgroundColor = bgInput.value;
+      const iconFile = fileInput.files[0];
+      const isTransparent = transparentCheckbox.checked;
+
+      if (!url) {
+        alert('Please enter a valid URL');
+        return;
+      }
+      if (!isTransparent && foregroundColor === backgroundColor) {
+        alert('Foreground color and Background color cannot be the same.');
+        return;
+      }
+
+      const qrData = {
+        url,
+        foregroundColor,
+        backgroundColor,
+        isTransparent
+      };
+
+      if (iconFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          qrData.iconDataURL = e.target.result;
+          generateQRCode(qrData, true);
+        };
+        reader.onerror = function() {
+          console.error('Failed to read icon file.');
+          generateQRCode(qrData, true);
+        };
+        reader.readAsDataURL(iconFile);
+      } else {
+        generateQRCode(qrData, true);
+      }
+    });
+
+    clearBtn.addEventListener('click', function() {
+      urlInput.value = '';
+      fgInput.value = '#000000';
+      bgInput.value = '#ffffff';
+      transparentCheckbox.checked = false;
+      fileInput.value = '';
+      fileNameDisplay.textContent = 'No file chosen';
+
+      if (qrCode) {
+        qrCode.clear();
+        qrCode = null;
+      }
+      if (qrCodeModal) {
+        qrCodeModal.clear();
+        qrCodeModal = null;
+      }
+      document.getElementById('qrcode').innerHTML = '';
+      document.getElementById('qrcode-modal').innerHTML = '';
+
+      currentQRData = null;
+      downloadSection.style.display = 'none';
+      saveBtn.style.display = 'none';
+      qrModal.classList.remove('show');
+
+      qrIcon.style.display = 'none';
+      qrIconModal.style.display = 'none';
+      toggleGenerateButton(false);
+    });
+
+    saveBtn.addEventListener('click', function() {
+      if (!isSaved) {
+        saveQrModal.classList.add('show');
+        qrNameInput.focus();
+      }
+    });
+
+    saveQrBtn.addEventListener('click', function() {
+      const qrName = qrNameInput.value.trim();
+      saveQRCode(qrName);
+      saveQrModal.classList.remove('show');
+      qrNameInput.value = '';
+    });
+
+    downloadPng.addEventListener('click', function(e) {
+      e.preventDefault();
+      downloadQR('png');
+    });
+
+    downloadJpg.addEventListener('click', function(e) {
+      e.preventDefault();
+      downloadQR('jpg');
+    });
+
+    downloadModalPng.addEventListener('click', function(e) {
+      e.preventDefault();
+      downloadQR('png', true);
+    });
+
+    loginBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      mainContent.classList.add('hidden');
+      loginSection.classList.add('show');
+      createSection.classList.remove('show');
+      toggleHeader(false);
+      toggleFooter(false);
+      usernameInput.focus();
+    });
+
+    backBtnLogin.addEventListener('click', function() {
+      mainContent.classList.remove('hidden');
+      loginSection.classList.remove('show');
+      createSection.classList.remove('show');
+      usernameInput.value = '';
+      passwordInput.value = '';
+      passwordGroup.style.display = 'none';
+      toggleHeader(true);
+      toggleFooter(true);
+    });
+
+    backBtnCreate.addEventListener('click', function() {
+      loginSection.classList.add('show');
+      createSection.classList.remove('show');
+      mainContent.classList.add('hidden');
+      newUsernameInput.value = '';
+      newPasswordInput.value = '';
+      toggleHeader(false);
+      toggleFooter(false);
+    });
+
+    createAccountLink.addEventListener('click', function() {
+      loginSection.classList.remove('show');
+      createSection.classList.add('show');
+      newUsernameInput.focus();
+    });
+
+    createSubmitBtn.addEventListener('click', async function() {
+      const username = newUsernameInput.value.trim();
+      const password = newPasswordInput.value.trim();
+
+      if (!username) {
+        alert('Please enter a username');
+        return;
+      }
+
+      createSubmitBtn.classList.add('loading');
+      createSubmitBtn.disabled = true;
+
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const q = query(collection(db, 'users'), where('username', '==', username));
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          alert('Username already exists. Please choose another.');
+          return;
+        }
+
+        await addDoc(collection(db, 'users'), {
+          username,
+          password: password || null,
+          createdAt: new Date().toISOString()
+        });
+
+        localStorage.setItem('username', username);
+        updateUIForLogin(username);
+        alert('Account created successfully!');
+        newUsernameInput.value = '';
+        newPasswordInput.value = '';
+      } catch (error) {
+        console.error('Error creating account:', error);
+        alert('Failed to create account.');
+      } finally {
+        createSubmitBtn.classList.remove('loading');
+        createSubmitBtn.disabled = false;
+      }
+    });
+
+    loginSubmitBtn.addEventListener('click', async function() {
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      if (!username) {
+        alert('Please enter a username');
+        return;
+      }
+
+      loginSubmitBtn.classList.add('loading');
+      loginSubmitBtn.disabled = true;
+
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const storedPassword = await checkUserPassword(username);
+        if (storedPassword === undefined) {
+          alert('Username not found. Please sign up.');
+          return;
+        }
+
+        if (storedPassword !== null && storedPassword !== password) {
+          alert('Incorrect password.');
+          return;
+        }
+
+        localStorage.setItem('username', username);
+        updateUIForLogin(username);
+        usernameInput.value = '';
+        passwordInput.value = '';
+        passwordGroup.style.display = 'none';
+      } catch (error) {
+        console.error('Error logging in:', error);
+        alert('Failed to log in.');
+      } finally {
+        loginSubmitBtn.classList.remove('loading');
+        loginSubmitBtn.disabled = false;
+      }
+    });
+
+    usernameInput.addEventListener('input', async function() {
+      const username = usernameInput.value.trim();
+      passwordGroup.style.opacity = '0';
+      if (username) {
+        loginSubmitBtn.classList.add('loading');
+        loginSubmitBtn.disabled = true;
+        try {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          const storedPassword = await checkUserPassword(username);
+          passwordGroup.style.transition = 'opacity 0.3s ease';
+          passwordGroup.style.opacity = '1';
+          passwordGroup.style.display = storedPassword !== null ? 'block' : 'none';
+        } finally {
+          loginSubmitBtn.classList.remove('loading');
+          loginSubmitBtn.disabled = false;
+        }
+      } else {
+        passwordGroup.style.display = 'none';
+      }
+    });
+
+    logoutBtn.addEventListener('click', function() {
+      logoutBtn.classList.add('loading');
+      logoutBtn.disabled = true;
+      setTimeout(() => {
+        localStorage.removeItem('username');
+        updateUIForLogin(null);
+        logoutBtn.classList.remove('loading');
+        logoutBtn.disabled = false;
+      }, 1000);
+    });
+
+    themeOptions.forEach(option => {
+      option.addEventListener('click', function(e) {
+        e.preventDefault();
+        const theme = this.getAttribute('data-theme');
+        setTheme(theme);
+      });
+    });
+
+    fileInput.addEventListener('change', function() {
+      if (fileInput.files.length > 0) {
+        fileNameDisplay.textContent = fileInput.files[0].name;
+      } else {
+        fileNameDisplay.textContent = 'No file chosen';
+      }
+    });
+
+    window.addEventListener('click', function(e) {
+      if (e.target === qrModal) {
+        qrModal.classList.remove('show');
+      }
+      if (e.target === saveQrModal) {
+        saveQrModal.classList.remove('show');
+      }
+    });
+
+    closeModalButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        button.closest('.modal').classList.remove('show');
+      });
+    });
+
+    urlInput.addEventListener('input', function() {
+      if (urlInput.value.trim() !== '') {
+        toggleGenerateButton(false);
+      } else {
+        toggleGenerateButton(true);
+      }
+    });
+
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 768) {
+        qrModal.classList.remove('show');
+      }
+    });
+
+    window.addEventListener('load', function() {
+      toggleGenerateButton(true);
+      const username = localStorage.getItem('username');
+      if (username) {
+        updateUIForLogin(username);
+      }
+      const savedTheme = localStorage.getItem('theme') || 'default';
+      setTheme(savedTheme);
+    });
+  </script>
+</body>
+</html>

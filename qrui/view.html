@@ -1,0 +1,457 @@
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>QRUI - View Saved QRs</title> <link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"> <style> :root { --primary: #FF9AA2; --secondary: #B5EAD7; --accent: #FFDAC1; --dark: #6B6054; --light: #F8F8F8; --border: 4px solid var(--dark); --shadow: 6px 6px 0px rgba(107, 96, 84, 0.3); --radius: 12px; --gap: 2rem; --font-base: 1rem; --font-lg: 2rem; --font-sm: 0.875rem; --font-xs: 0.75rem; }
+.dark-mode {
+--primary: #FF7B8A;
+--secondary: #333333;
+--accent: #FFC8A2;
+--dark: #D0D0D0;
+--light: #1E1E1E;
+--border: 4px solid var(--dark);
+--shadow: 6px 6px 0px rgba(208, 208, 208, 0.3);
+}
+
+.blue-theme {
+--primary: #6AB4FF;
+--secondary: #A3DFFA;
+--accent: #D6EFFF;
+--dark: #4A6B8A;
+--light: #F0F7FF;
+--border: 4px solid var(--dark);
+}
+
+.green-theme {
+--primary: #7EDDB5;
+--secondary: #B3E8D3;
+--accent: #D9F2E6;
+--dark: #5A7A6A;
+--light: #F2FFF9;
+--border: 4px solid var(--dark);
+}
+
+{ margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+body {
+background-color: var(--light);
+color: var(--dark);
+padding: 2rem;
+max-width: 1200px;
+margin: 0 auto;
+min-height: 100vh;
+line-height: 1.5;
+font-size: var(--font-base);
+transition: all 0.3s ease;
+display: flex;
+flex-direction: column;
+}
+
+header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 2rem;
+}
+
+h1 {
+font-size: var(--font-lg);
+font-weight: 700;
+}
+
+.header-buttons {
+display: flex;
+gap: 0.75rem;
+align-items: center;
+}
+
+.back-btn, .logout-btn, .theme-btn, .view-toggle-btn {
+padding: 0.5rem 1rem;
+border: var(--border);
+border-radius: var(--radius);
+background-color: var(--primary);
+font-size: var(--font-sm);
+font-weight: 600;
+cursor: pointer;
+transition: all 0.2s ease;
+display: flex;
+align-items: center;
+gap: 0.5rem;
+position: relative;
+text-decoration: none;
+color: var(--dark);
+}
+
+.back-btn:hover, .logout-btn:hover, .theme-btn:hover, .view-toggle-btn:hover {
+transform: translate(2px, 2px);
+}
+
+.back-btn i, .logout-btn i, .theme-btn i, .view-toggle-btn i {
+color: var(--dark);
+}
+
+.theme-dropdown {
+position: relative;
+}
+
+.theme-dropdown-content {
+display: none;
+position: absolute;
+right: 0;
+background-color: white;
+min-width: 120px;
+border: var(--border);
+border-radius: var(--radius);
+box-shadow: var(--shadow);
+z-index: 10;
+margin-top: 0.25rem;
+}
+
+.dark-mode .theme-dropdown-content {
+background-color: #2A2A2A;
+}
+
+.theme-dropdown-content a {
+display: block;
+padding: 0.75rem;
+color: var(--dark);
+text-decoration: none;
+font-size: var(--font-sm);
+transition: all 0.2s ease;
+}
+
+.theme-dropdown-content a:hover {
+background-color: var(--secondary);
+}
+
+.theme-dropdown:hover .theme-dropdown-content {
+display: block;
+}
+
+.btn.loading::after {
+content: '';
+position: absolute;
+width: 20px;
+height: 20px;
+border: 4px solid var(--dark);
+border-top: 4px solid transparent;
+border-radius: 50%;
+animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+
+.qr-list.grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+gap: var(--gap);
+flex: 1;
+}
+
+.qr-list.list {
+display: flex;
+flex-direction: column;
+gap: var(--gap);
+flex: 1;
+}
+
+.qr-card {
+background-color: white;
+border: var(--border);
+border-radius: var(--radius);
+box-shadow: var(--shadow);
+padding: 1rem;
+transition: all 0.2s ease;
+}
+
+.qr-list.grid .qr-card {
+display: flex;
+flex-direction: column;
+align-items: center;
+}
+
+.qr-list.list .qr-card {
+display: flex;
+flex-direction: row;
+align-items: center;
+gap: 0.75rem;
+}
+
+.dark-mode .qr-card {
+background-color: #333333;
+}
+
+.qr-card:hover {
+transform: translate(2px, 2px);
+box-shadow: 2px 2px 0px rgba(107, 96, 84, 0.4);
+}
+
+.qr-card .qr-container {
+position: relative;
+}
+
+.qr-list.grid .qr-container {
+width: 200px;
+height: 200px;
+margin-bottom: 1rem;
+}
+
+.qr-list.list .qr-container {
+width: 100px;
+height: 100px;
+flex-shrink: 0;
+}
+
+.qr-card .qr-container img {
+width: 100%;
+height: 100%;
+}
+
+.qr-card .qr-overlay-icon {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+border-radius: var(--radius);
+object-fit: cover;
+border: var(--border);
+box-shadow: var(--shadow);
+}
+
+.qr-list.grid .qr-overlay-icon {
+width: 30px;
+height: 30px;
+}
+
+.qr-list.list .qr-overlay-icon {
+width: 15px;
+height: 15px;
+}
+
+.qr-card .info {
+flex: 1;
+display: flex;
+flex-direction: column;
+}
+
+.qr-list.grid .info {
+text-align: center;
+align-items: center;
+}
+
+.qr-card .name {
+font-size: var(--font-base);
+font-weight: 600;
+margin-bottom: 0.25rem;
+}
+
+.qr-card .url {
+font-size: var(--font-sm);
+margin-bottom: 0.25rem;
+word-break: break-all;
+}
+
+.qr-card .timestamp {
+font-size: var(--font-xs);
+color: var(--dark);
+opacity: 0.7;
+margin-bottom: 0.25rem;
+}
+
+.qr-card .button-row {
+display: flex;
+gap: 0.5rem;
+}
+
+.qr-list.grid .button-row {
+width: 100%;
+}
+
+.qr-list.list .button-row {
+flex-wrap: nowrap;
+}
+
+.btn {
+padding: 0.75rem;
+border: var(--border);
+border-radius: var(--radius);
+font-size: var(--font-sm);
+font-weight: 600;
+cursor: pointer;
+box-shadow: var(--shadow);
+transition: all 0.2s ease;
+text-align: center;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 0.5rem;
+}
+
+.qr-list.grid .btn {
+flex: 1;
+min-height: 48px;
+}
+
+.qr-list.list .btn {
+padding: 0.5rem;
+font-size: var(--font-xs);
+min-height: 32px;
+flex: 1;
+}
+
+.btn-primary {
+background-color: var(--primary);
+color: var(--dark);
+}
+
+.btn-danger {
+background-color: var(--accent);
+color: var(--dark);
+}
+
+.btn:hover {
+transform: translate(2px, 2px);
+box-shadow: 2px 2px 0px rgba(107, 96, 84, 0.4);
+}
+
+.no-qr-message {
+text-align: center;
+font-size: var(--font-base);
+color: var(--dark);
+margin-top: 2rem;
+flex: 1;
+}
+
+footer {
+text-align: center;
+padding: 1rem 0;
+font-size: var(--font-xs);
+color: var(--dark);
+border-top: var(--border);
+margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+:root {
+--gap: 1rem;
+}
+
+body {
+padding: 1rem;
+}
+
+header {
+flex-direction: row;
+align-items: center;
+margin-bottom: 1rem;
+}
+
+h1 {
+font-size: 1.5rem;
+}
+
+.header-buttons {
+flex-direction: row;
+gap: 0.5rem;
+}
+
+.logout-btn, .theme-btn, .back-btn, .view-toggle-btn {
+padding: 0.5rem;
+font-size: var(--font-xs);
+}
+
+.logout-btn span, .theme-btn span, .back-btn span, .view-toggle-btn span {
+display: none;
+}
+
+.qr-list.grid {
+grid-template-columns: 1fr;
+}
+
+.qr-list.list .qr-card {
+flex-direction: row;
+align-items: stretch;
+gap: 0.5rem;
+padding: 0.5rem;
+}
+
+.qr-list.list .qr-container {
+width: 80px;
+height: 80px;
+flex-shrink: 0;
+}
+
+.qr-list.list .qr-overlay-icon {
+width: 12px;
+height: 12px;
+}
+
+.qr-list.list .info {
+flex: 1;
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+min-width: 0;
+}
+
+.qr-list.list .name {
+font-size: var(--font-sm);
+margin-bottom: 0.2rem;
+}
+
+.qr-list.list .url {
+font-size: var(--font-xs);
+margin-bottom: 0.2rem;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+
+.qr-list.list .timestamp {
+display: none;
+}
+
+.qr-list.list .button-row {
+flex-direction: row;
+gap: 0.3rem;
+width: auto;
+align-self: flex-end;
+}
+
+.qr-list.list .btn {
+padding: 0.4rem;
+font-size: 0.625rem;
+min-height: 24px;
+}
+}
+
+@media (max-width: 480px) {
+.btn {
+padding: 0.3rem;
+font-size: 0.5rem;
+}
+
+.qr-list.list .qr-container {
+width: 60px;
+height: 60px;
+}
+
+.qr-list.list .qr-overlay-icon {
+width: 10px;
+height: 10px;
+}
+
+.qr-list.list .name {
+font-size: 0.75rem;
+}
+
+.qr-list.list .url {
+font-size: 0.625rem;
+}
+
+.qr-list.list .btn {
+padding: 0.3rem;
+min-height: 20px;
+}
+}
+</style>
+
+</head> <body> <header> <h1>QRUI</h1> <div class="header-buttons"> <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i><span>Back</span></a> <button id="view-toggle-btn" class="view-toggle-btn"><i class="fas fa-th"></i><span>Grid</span></button> <button id="logout-btn" class="logout-btn"><i class="fas fa-sign-out-alt"></i><span>Log Out</span></button> <div class="theme-dropdown"> <button id="theme-btn" class="theme-btn"><i class="fas fa-palette"></i><span>Theme</span></button> <div class="theme-dropdown-content"> <a href="#" data-theme="default">Default</a> <a href="#" data-theme="dark-mode">Dark Mode</a> <a href="#" data-theme="blue-theme">Blue</a> <a href="#" data-theme="green-theme">Green</a> </div> </div> </div> </header> <div id="qr-list" class="qr-list grid"> <!-- QR cards will be dynamically inserted here --> </div> <div id="no-qr-message" class="no-qr-message" style="display: none;"> No saved QR codes found. </div> <footer>Create by AI</footer> <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script> <script type="module"> import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js"; import { getFirestore, collection, getDocs, query, where, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js"; const firebaseConfig = { apiKey: "AIzaSyDf2FEU43V59XUHbg7ONghUMHY570Df7yU", authDomain: "qrui-f59b1.firebaseapp.com", projectId: "qrui-f59b1", storageBucket: "qrui-f59b1.firebasestorage.app", messagingSenderId: "1055223980386", appId: "1:1055223980386:web:0db705a70e41c78965cc3b", measurementId: "G-WL53ZP5LLG" }; const app = initializeApp(firebaseConfig); const db = getFirestore(app); const qrList = document.getElementById('qr-list'); const noQrMessage = document.getElementById('no-qr-message'); const logoutBtn = document.getElementById('logout-btn'); const viewToggleBtn = document.getElementById('view-toggle-btn'); const themeOptions = document.querySelectorAll('.theme-dropdown-content a'); let currentView = 'grid'; function setTheme(theme) { document.body.className = theme === 'default' ? '' : theme; localStorage.setItem('theme', theme); } function toggleView() { currentView = currentView === 'grid' ? 'list' : 'grid'; qrList.classList.remove('grid', 'list'); qrList.classList.add(currentView); viewToggleBtn.innerHTML = `<i class="fas fa-${currentView === 'grid' ? 'th' : 'list'}"></i><span>${currentView.charAt(0).toUpperCase() + currentView.slice(1)}</span>`; loadQRCodes(); } async function loadQRCodes() { const username = localStorage.getItem('username'); if (!username) { window.location.href = 'index.html'; return; } qrList.innerHTML = ''; try { const q = query(collection(db, 'qr_codes'), where('username', '==', username)); const querySnapshot = await getDocs(q); if (querySnapshot.empty) { noQrMessage.style.display = 'block'; return; } noQrMessage.style.display = 'none'; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); const qrCard = document.createElement('div'); qrCard.classList.add('qr-card'); qrCard.innerHTML = ` <div class="qr-container" id="qr-${docSnap.id}"></div> ${data.iconDataURL ? `<img src="${data.iconDataURL}" alt="QR Icon" class="qr-overlay-icon">` : ''} <div class="info"> <div class="name">${data.name}</div> <div class="url">${data.url}</div> <div class="timestamp">${new Date(data.timestamp).toLocaleString()}</div> <div class="button-row"> <button class="btn btn-primary download-btn" data-id="${docSnap.id}"><i class="fas fa-download"></i> Download</button> <button class="btn btn-danger delete-btn" data-id="${docSnap.id}"><i class="fas fa-trash-alt"></i> Delete</button> </div> </div> `; qrList.appendChild(qrCard); try { new QRCode(document.getElementById(`qr-${docSnap.id}`), { text: data.url, width: currentView === 'grid' ? 200 : 80, height: currentView === 'grid' ? 200 : 80, colorDark: data.foregroundColor || '#000000', colorLight: data.isTransparent ? 'rgba(0,0,0,0)' : (data.backgroundColor || '#ffffff'), correctLevel: QRCode.CorrectLevel.H }); } catch (error) { console.error('Error generating QR code:', error); } }); } catch (error) { console.error('Error loading QR codes:', error); alert('Failed to load QR codes.'); } } function downloadQR(qrContainer, iconSrc, qrName) { try { const canvas = qrContainer.querySelector('canvas'); if (!canvas) { alert('QR Code not found.'); return; } const combinedCanvas = document.createElement('canvas'); const ctx = combinedCanvas.getContext('2d'); combinedCanvas.width = canvas.width; combinedCanvas.height = canvas.height; ctx.drawImage(canvas, 0, 0); if (iconSrc) { const iconImg = new Image(); iconImg.src = iconSrc; iconImg.onload = function() { const iconSize = canvas.width * 0.15; const xPos = (canvas.width - iconSize) / 2; const yPos = (canvas.height - iconSize) / 2; ctx.drawImage(iconImg, xPos, yPos, iconSize, iconSize); doDownload(combinedCanvas, qrName); }; iconImg.onerror = function() { console.error('Failed to load icon.'); doDownload(combinedCanvas, qrName); }; if (iconImg.complete) { iconImg.onload(); } } else { doDownload(combinedCanvas, qrName); } } catch (error) { console.error('Download error:', error); alert('Failed to download QR code.'); } } function doDownload(canvas, qrName) { try { const dataURL = canvas.toDataURL('image/png'); const downloadLink = document.createElement('a'); downloadLink.href = dataURL; downloadLink.download = `${qrName || 'qr-code'}.png`; document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink); } catch (error) { console.error('Do download error:', error); alert('Failed to download QR code.'); } } async function deleteQRCode(id) { try { await deleteDoc(doc(db, 'qr_codes', id)); loadQRCodes(); alert('QR Code deleted successfully!'); } catch (error) { console.error('Error deleting QR code:', error); alert('Failed to delete QR code.'); } } qrList.addEventListener('click', function(e) { const downloadBtn = e.target.closest('.download-btn'); const deleteBtn = e.target.closest('.delete-btn'); if (downloadBtn) { const id = downloadBtn.dataset.id; const qrContainer = document.getElementById(`qr-${id}`).parentElement; const icon = qrContainer.querySelector('.qr-overlay-icon'); const name = qrContainer.parentElement.querySelector('.name').textContent; downloadQR(qrContainer, icon ? icon.src : null, name); } if (deleteBtn) { const id = deleteBtn.dataset.id; if (confirm('Are you sure you want to delete this QR code?')) { deleteQRCode(id); } } }); logoutBtn.addEventListener('click', function() { logoutBtn.classList.add('loading'); logoutBtn.disabled = true; setTimeout(() => { localStorage.removeItem('username'); window.location.href = 'index.html'; logoutBtn.classList.remove('loading'); logoutBtn.disabled = false; }, 1000); }); viewToggleBtn.addEventListener('click', function() { toggleView(); }); themeOptions.forEach(option => { option.addEventListener('click', function(e) { e.preventDefault(); const theme = this.getAttribute('data-theme'); setTheme(theme); }); }); window.addEventListener('load', function() { const savedTheme = localStorage.getItem('theme') || 'default'; setTheme(savedTheme); loadQRCodes(); }); </script> </body> </html>
